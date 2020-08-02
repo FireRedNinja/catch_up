@@ -1,44 +1,45 @@
 import 'dart:collection';
-import 'dart:async';
 
-import 'package:catch_up/pages/HackerNews/Data/HackerNewsBloc.dart';
+import 'package:catch_up/pages/HackerNews/HackerNewsBloc.dart';
 import 'package:flutter/material.dart';
 import './Data/Item.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class Feed extends StatefulWidget {
   final String sort;
+  final HackerNewsBloc bloc;
 
-  Feed({Key key, this.sort}) : super(key: key);
+  Feed({Key key, this.sort, this.bloc}) : super(key: key);
 
   @override
   _FeedState createState() => _FeedState();
 }
 
 class _FeedState extends State<Feed> {
-  final hackerNewsBloc = HackerNewsBloc();
-
   @override
   Widget build(BuildContext context) {
     switch (widget.sort) {
       case 'Best':
-        hackerNewsBloc.storiesType.add(StoriesType.bestStories);
+        widget.bloc.storiesType.add(StoriesType.bestStories);
         break;
       case 'Top':
-        hackerNewsBloc.storiesType.add(StoriesType.topStories);
+        widget.bloc.storiesType.add(StoriesType.topStories);
         break;
       case 'New':
-        hackerNewsBloc.storiesType.add(StoriesType.newStories);
+        widget.bloc.storiesType.add(StoriesType.newStories);
         break;
     }
 
     return StreamBuilder<UnmodifiableListView<Item>>(
-      stream: hackerNewsBloc.items,
+      stream: widget.bloc.items,
       initialData: UnmodifiableListView<Item>([]),
       builder: (builderContext, snapshot) => ListView.separated(
         padding: const EdgeInsets.all(8),
         itemCount: snapshot.data.length,
         itemBuilder: (BuildContext itemBuilderContext, int index) {
+          if (snapshot.data[index] == snapshot.data.last) {
+            widget.bloc.getItemsAndUpdate(index + 1, 10);
+          }
           return _buildListTile(snapshot.data[index]);
         },
         separatorBuilder: (BuildContext context, int index) => const Divider(),

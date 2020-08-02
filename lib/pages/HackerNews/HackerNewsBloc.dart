@@ -13,33 +13,33 @@ class HackerNewsApiError extends Error {
 
 class HackerNewsBloc {
   HashMap<int, Item> _cachedItems;
-
+  var _items = <Item>[];
+  List<int> _ids = <int>[];
   static const _baseUrl = 'https://hacker-news.firebaseio.com/v0/';
 
   final _itemsSubject = BehaviorSubject<UnmodifiableListView<Item>>();
   final _storiesTypeController = StreamController<StoriesType>();
   final _isLoadingSubject = BehaviorSubject<bool>();
 
-  var _items = <Item>[];
-
-  HackerNewsBloc() {
-    _cachedItems = HashMap<int, Item>();
-    _initItems();
-
-    _storiesTypeController.stream.listen((storiesType) async {
-      _getItemsAndUpdate(await _getIds(storiesType));
-    });
-  }
-
   Stream<UnmodifiableListView<Item>> get items => _itemsSubject.stream;
   Sink<StoriesType> get storiesType => _storiesTypeController.sink;
   Stream<bool> get isLoading => _isLoadingSubject.stream;
+
+  HackerNewsBloc() {
+    _cachedItems = HashMap<int, Item>();
+
+    _storiesTypeController.stream.listen((storiesType) async {
+      _items.clear();
+      await _getIds(storiesType);
+      await getItemsAndUpdate(0, 10);
+    });
+  }
 
   void close() {
     _storiesTypeController.close();
   }
 
-  Future<List<int>> _getIds(StoriesType type) async {
+  Future<Null> _getIds(StoriesType type) async {
     var partUrl;
     switch (type) {
       case StoriesType.topStories:
@@ -58,11 +58,20 @@ class HackerNewsBloc {
     if (response.statusCode != 200) {
       throw HackerNewsApiError("Stories $type couldn't be fetched.");
     }
-    return parseTopStories(response.body).take(10).toList();
+    _ids = parseTopStories(response.body).toList();
   }
 
-  Future<void> _initItems() async {
-    _getItemsAndUpdate(await _getIds(StoriesType.topStories));
+  Future<void> getItemsAndUpdate(int startIndex, int noOfItems) async {
+    _isLoadingSubject.add(true);
+    await _updateItems(_ids.sublist(startIndex, startIndex + noOfItems));
+    _itemsSubject.add(UnmodifiableListView(_items));
+    _isLoadingSubject.add(false);
+  }
+
+  Future<Null> _updateItems(List<int> itemIds) async {
+    final futureItems = itemIds.map((id) => _getItem(id));
+    final items = await Future.wait(futureItems);
+    _items = _items + items;
   }
 
   Future<Item> _getItem(int id) async {
@@ -75,21 +84,7 @@ class HackerNewsBloc {
         throw HackerNewsApiError("Item $id couldn't be fetched.");
       }
     }
-
     return _cachedItems[id];
-  }
-
-  _getItemsAndUpdate(List<int> ids) async {
-    _isLoadingSubject.add(true);
-    await _updateItems(ids);
-    _itemsSubject.add(UnmodifiableListView(_items));
-    _isLoadingSubject.add(false);
-  }
-
-  Future<Null> _updateItems(List<int> itemIds) async {
-    final futureItems = itemIds.map((id) => _getItem(id));
-    final items = await Future.wait(futureItems);
-    _items = items;
   }
 }
 

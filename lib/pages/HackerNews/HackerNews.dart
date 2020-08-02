@@ -1,11 +1,13 @@
+import 'package:catch_up/pages/HackerNews/HackerNewsBloc.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'Feed.dart';
 
 class HackerNews extends StatefulWidget {
-  HackerNews({Key key, this.title}) : super(key: key);
-
   final String title;
+  final HackerNewsBloc bloc;
+
+  HackerNews({Key key, this.title, this.bloc}) : super(key: key);
 
   @override
   _HackerNewsState createState() => _HackerNewsState();
@@ -39,7 +41,7 @@ class _HackerNewsState extends State<HackerNews> {
           )
         ],
       ),
-      body: Feed(sort: sortValue),
+      body: Feed(sort: sortValue, bloc: widget.bloc),
       drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
