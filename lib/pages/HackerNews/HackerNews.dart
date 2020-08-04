@@ -1,13 +1,12 @@
 import 'package:catch_up/pages/HackerNews/HackerNewsBloc.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'Feed.dart';
+import 'package:catch_up/pages/HackerNews/Feed.dart';
+import 'package:catch_up/CatchUpDrawer.dart';
 
 class HackerNews extends StatefulWidget {
-  final String title;
   final HackerNewsBloc bloc;
 
-  HackerNews({Key key, this.title, this.bloc}) : super(key: key);
+  HackerNews({Key key, this.bloc}) : super(key: key);
 
   @override
   _HackerNewsState createState() => _HackerNewsState();
@@ -42,29 +41,7 @@ class _HackerNewsState extends State<HackerNews> {
         ],
       ),
       body: Feed(sort: sortValue, bloc: widget.bloc),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: const <Widget>[
-            DrawerHeader(
-              decoration: BoxDecoration(
-                color: Colors.deepOrange,
-              ),
-              child: Text(
-                'Welcome FireRedNinja',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
-                ),
-              ),
-            ),
-            ListTile(
-              leading: Icon(FontAwesomeIcons.hackerNewsSquare),
-              title: Text('Hacker News'),
-            ),
-          ],
-        ),
-      ),
+      drawer: CatchUpDrawer(),
     );
   }
 }
