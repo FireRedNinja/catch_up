@@ -1,4 +1,5 @@
 import 'package:catch_up/pages/GitHub/GitHub.dart';
+import 'package:catch_up/pages/GitHub/GitHubBloc.dart';
 import 'package:catch_up/pages/HackerNews/HackerNews.dart';
 import 'package:catch_up/pages/HackerNews/HackerNewsBloc.dart';
 import 'package:flutter/material.dart';
@@ -16,6 +17,7 @@ class CatchUp extends StatefulWidget {
 
 class _CatchUpState extends State<CatchUp> {
   final hackerNewsBloc = HackerNewsBloc();
+  final githubBloc = GitHubBloc();
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +30,7 @@ class _CatchUpState extends State<CatchUp> {
       initialRoute: '/hackernews',
       routes: {
         '/hackernews': (context) => HackerNews(bloc: hackerNewsBloc),
-        '/github': (context) => GitHub(),
+        '/github': (context) => GitHub(bloc: githubBloc),
       },
     );
   }

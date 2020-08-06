@@ -2,7 +2,7 @@ import 'dart:convert' as json;
 import 'package:built_value/built_value.dart';
 import 'package:built_value/serializer.dart';
 import 'package:built_collection/built_collection.dart';
-import '../../serializers.dart';
+import 'package:catch_up/pages/serializers.dart';
 
 part 'Item.g.dart';
 

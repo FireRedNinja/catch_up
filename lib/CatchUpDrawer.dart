@@ -10,7 +10,7 @@ class CatchUpDrawer extends StatelessWidget {
         children: <Widget>[
           DrawerHeader(
             decoration: BoxDecoration(
-              color: Colors.deepOrange,
+              color: Colors.blueGrey,
             ),
             child: Text(
               'Welcome FireRedNinja',

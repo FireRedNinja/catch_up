@@ -17,6 +17,8 @@ class _HackerNewsState extends State<HackerNews> {
 
   @override
   Widget build(BuildContext context) {
+    widget.bloc.storiesType.add(StoriesType.topStories);
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Hacker News'),
@@ -30,6 +32,17 @@ class _HackerNewsState extends State<HackerNews> {
                     DropdownMenuItem<String>(value: value, child: Text(value)))
                 .toList(),
             onChanged: (String value) {
+              switch (value) {
+                case 'Best':
+                  widget.bloc.storiesType.add(StoriesType.bestStories);
+                  break;
+                case 'Top':
+                  widget.bloc.storiesType.add(StoriesType.topStories);
+                  break;
+                case 'New':
+                  widget.bloc.storiesType.add(StoriesType.newStories);
+                  break;
+              }
               setState(() {
                 sortValue = value;
               });
@@ -40,7 +53,7 @@ class _HackerNewsState extends State<HackerNews> {
           )
         ],
       ),
-      body: Feed(sort: sortValue, bloc: widget.bloc),
+      body: Feed(bloc: widget.bloc),
       drawer: CatchUpDrawer(),
     );
   }

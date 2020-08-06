@@ -8,6 +8,7 @@ import 'package:built_value/serializer.dart';
 import 'package:built_collection/built_collection.dart';
 import 'package:built_value/standard_json_plugin.dart';
 import 'HackerNews/Data/Item.dart';
+import 'GitHub/Data/Repo.dart';
 
 part 'serializers.g.dart';
 
@@ -24,6 +25,7 @@ part 'serializers.g.dart';
 /// You usually only need to do this once per project.
 @SerializersFor(const [
   Item,
+  Repo,
 ])
 Serializers serializers = _$serializers;
 
