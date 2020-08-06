@@ -1,13 +1,12 @@
 import 'package:catch_up/pages/HackerNews/HackerNewsBloc.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'Feed.dart';
+import 'package:catch_up/pages/HackerNews/Feed.dart';
+import 'package:catch_up/CatchUpDrawer.dart';
 
 class HackerNews extends StatefulWidget {
-  final String title;
   final HackerNewsBloc bloc;
 
-  HackerNews({Key key, this.title, this.bloc}) : super(key: key);
+  HackerNews({Key key, this.bloc}) : super(key: key);
 
   @override
   _HackerNewsState createState() => _HackerNewsState();
@@ -18,6 +17,8 @@ class _HackerNewsState extends State<HackerNews> {
 
   @override
   Widget build(BuildContext context) {
+    widget.bloc.storiesType.add(StoriesType.topStories);
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Hacker News'),
@@ -31,6 +32,17 @@ class _HackerNewsState extends State<HackerNews> {
                     DropdownMenuItem<String>(value: value, child: Text(value)))
                 .toList(),
             onChanged: (String value) {
+              switch (value) {
+                case 'Best':
+                  widget.bloc.storiesType.add(StoriesType.bestStories);
+                  break;
+                case 'Top':
+                  widget.bloc.storiesType.add(StoriesType.topStories);
+                  break;
+                case 'New':
+                  widget.bloc.storiesType.add(StoriesType.newStories);
+                  break;
+              }
               setState(() {
                 sortValue = value;
               });
@@ -41,30 +53,8 @@ class _HackerNewsState extends State<HackerNews> {
           )
         ],
       ),
-      body: Feed(sort: sortValue, bloc: widget.bloc),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: const <Widget>[
-            DrawerHeader(
-              decoration: BoxDecoration(
-                color: Colors.deepOrange,
-              ),
-              child: Text(
-                'Welcome FireRedNinja',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
-                ),
-              ),
-            ),
-            ListTile(
-              leading: Icon(FontAwesomeIcons.hackerNewsSquare),
-              title: Text('Hacker News'),
-            ),
-          ],
-        ),
-      ),
+      body: Feed(bloc: widget.bloc),
+      drawer: CatchUpDrawer(),
     );
   }
 }

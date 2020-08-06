@@ -6,10 +6,9 @@ import './Data/Item.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class Feed extends StatefulWidget {
-  final String sort;
   final HackerNewsBloc bloc;
 
-  Feed({Key key, this.sort, this.bloc}) : super(key: key);
+  Feed({Key key, this.bloc}) : super(key: key);
 
   @override
   _FeedState createState() => _FeedState();
@@ -18,18 +17,6 @@ class Feed extends StatefulWidget {
 class _FeedState extends State<Feed> {
   @override
   Widget build(BuildContext context) {
-    switch (widget.sort) {
-      case 'Best':
-        widget.bloc.storiesType.add(StoriesType.bestStories);
-        break;
-      case 'Top':
-        widget.bloc.storiesType.add(StoriesType.topStories);
-        break;
-      case 'New':
-        widget.bloc.storiesType.add(StoriesType.newStories);
-        break;
-    }
-
     return StreamBuilder<UnmodifiableListView<Item>>(
       stream: widget.bloc.items,
       initialData: UnmodifiableListView<Item>([]),
@@ -52,12 +39,14 @@ class _FeedState extends State<Feed> {
       title: Text('${item.title}'),
       subtitle: Text(
           '${item.score} points by ${item.by} ${item.time} ago | ${item.descendants} comments | ${item.url}'),
-      trailing: Icon(Icons.launch),
-      onTap: () async {
-        if (await canLaunch(item.url)) {
-          await launch(item.url);
-        }
-      },
+      trailing: IconButton(
+        icon: Icon(Icons.launch),
+        onPressed: () async {
+          if (await canLaunch(item.url)) {
+            await launch(item.url);
+          }
+        },
+      ),
     );
   }
 }
