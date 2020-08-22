@@ -10,7 +10,7 @@ class CatchUpDrawer extends StatelessWidget {
         children: <Widget>[
           DrawerHeader(
             decoration: BoxDecoration(
-              color: Colors.blueGrey,
+              color: Theme.of(context).accentColor,
             ),
             child: Text(
               'Welcome FireRedNinja',
@@ -34,6 +34,13 @@ class CatchUpDrawer extends StatelessWidget {
               Navigator.popAndPushNamed(context, '/github');
             },
           ),
+          ListTile(
+            leading: Icon(FontAwesomeIcons.productHunt),
+            title: Text('Product Hunt'),
+            onTap: () {
+              Navigator.popAndPushNamed(context, '/producthunt');
+            },
+          )
         ],
       ),
     );
