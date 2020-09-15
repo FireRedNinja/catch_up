@@ -1,6 +1,7 @@
 import 'package:catch_up/pages/HackerNews/HackerNewsBloc.dart';
 import 'package:flutter/material.dart';
 import 'package:catch_up/pages/HackerNews/Feed.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:catch_up/CatchUpDrawer.dart';
 
 class HackerNews extends StatefulWidget {
@@ -23,34 +24,44 @@ class _HackerNewsState extends State<HackerNews> {
       appBar: AppBar(
         title: Text('Hacker News'),
         actions: <Widget>[
-          DropdownButtonHideUnderline(
-              child: DropdownButton<String>(
-            icon: Icon(Icons.sort),
-            iconEnabledColor: Colors.white,
-            items: <String>['Best', 'Top', 'New']
-                .map<DropdownMenuItem<String>>((String value) =>
-                    DropdownMenuItem<String>(value: value, child: Text(value)))
-                .toList(),
-            onChanged: (String value) {
-              switch (value) {
-                case 'Best':
-                  widget.bloc.storiesType.add(StoriesType.bestStories);
-                  break;
-                case 'Top':
-                  widget.bloc.storiesType.add(StoriesType.topStories);
-                  break;
-                case 'New':
-                  widget.bloc.storiesType.add(StoriesType.newStories);
-                  break;
-              }
-              setState(() {
-                sortValue = value;
-              });
-            },
-          )),
-          SizedBox(
-            width: 12,
-          )
+          PopupMenuButton<String>(
+              icon: Icon(Icons.sort),
+              onSelected: (String value) {
+                switch (value) {
+                  case 'Best':
+                    widget.bloc.storiesType.add(StoriesType.bestStories);
+                    break;
+                  case 'Top':
+                    widget.bloc.storiesType.add(StoriesType.topStories);
+                    break;
+                  case 'New':
+                    widget.bloc.storiesType.add(StoriesType.newStories);
+                    break;
+                }
+                setState(() {
+                  sortValue = value;
+                });
+              },
+              itemBuilder: (BuildContext context) => <String>[
+                    'Best',
+                    'Top',
+                    'New'
+                  ]
+                      .map((String value) => PopupMenuItem<String>(
+                          value: value, child: Text(value)))
+                      .toList()),
+          PopupMenuButton(
+              onSelected: (String value) async {
+                if (await canLaunch("https://news.ycombinator.com/")) {
+                  await launch("https://news.ycombinator.com/");
+                }
+              },
+              itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                    PopupMenuItem<String>(
+                      value: "Go to site",
+                      child: Text('Go To Hacker News'),
+                    )
+                  ]),
         ],
       ),
       body: Feed(bloc: widget.bloc),

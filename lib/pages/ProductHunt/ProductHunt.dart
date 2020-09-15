@@ -15,61 +15,169 @@ class ProductHunt extends StatefulWidget {
 }
 
 class _ProductHuntState extends State<ProductHunt> {
+  String sortValue = "RANKING";
+
   @override
   Widget build(BuildContext context) {
     return GraphQLProvider(
-      client: widget.bloc.getClient(),
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text('Product Hunt'),
-          // actions: [], TODO: Add sorting options
+        client: widget.bloc.getClient(),
+        child: CacheProvider(child: _buildScaffold(context)));
+  }
+
+  Widget _buildScaffold(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Product Hunt'),
+        actions: _buildActions(),
+      ),
+      body: RefreshIndicator(
+          child: _buildFeed(context),
+          onRefresh: () async {
+            await Future.delayed(Duration(milliseconds: 400));
+            setState(() {});
+          }),
+      drawer: CatchUpDrawer(),
+    );
+  }
+
+  Widget _buildFeed(BuildContext context) {
+    return Query(
+        options: QueryOptions(
+          documentNode: gql(widget.bloc.getQuery(sortValue)),
+          variables: {'nPosts': 10},
+          pollInterval: 3600000,
         ),
-        body: Query(
-            options: QueryOptions(
-              documentNode: gql(widget.bloc.getQuery()),
-              variables: {'nPosts': 10},
-              pollInterval: 3600000,
+        builder: (QueryResult result,
+            {VoidCallback refetch, FetchMore fetchMore}) {
+          if (result.hasException) {
+            return Padding(
+                padding: EdgeInsets.all(20),
+                child: Text(result.exception.toString()));
+          }
+
+          if (result.loading) {
+            return Center(child: CircularProgressIndicator());
+          }
+
+          List posts = result.data['posts']['edges'];
+          widget.bloc.setPosts(posts);
+
+          return ListView.separated(
+            padding: EdgeInsets.all(12),
+            itemCount: widget.bloc.getPosts().length,
+            itemBuilder: (context, index) {
+              final post = posts[index];
+              return _buildListTile(post['node'], context);
+            },
+            separatorBuilder: (context, index) => Divider(),
+          );
+        });
+  }
+
+  List<Widget> _buildActions() {
+    return <Widget>[
+      PopupMenuButton<String>(
+          onSelected: (String value) {
+            var newValue;
+            switch (value) {
+              case "Featured At":
+                newValue = "FEATURED_AT";
+                break;
+              case "Votes":
+                newValue = "VOTES";
+                break;
+              case "Ranking":
+                newValue = "RANKING";
+                break;
+              case "Newest":
+                newValue = "NEWEST";
+                break;
+              default:
+            }
+            setState(() {
+              sortValue = newValue;
+            });
+          },
+          icon: Icon(Icons.sort),
+          itemBuilder: (BuildContext context) => <String>[
+                'Featured At',
+                'Votes',
+                'Ranking',
+                'Newest'
+              ]
+                  .map((String value) =>
+                      PopupMenuItem<String>(value: value, child: Text(value)))
+                  .toList()),
+      PopupMenuButton(
+          onSelected: (String value) async {
+            await launch("https://www.producthunt.com/");
+          },
+          itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                PopupMenuItem<String>(
+                  value: "Go to site",
+                  child: Text('Go To ProductHunt'),
+                )
+              ]),
+    ];
+  }
+
+  Widget _buildListTile(
+      LinkedHashMap<String, dynamic> post, BuildContext context) {
+    final topic = post['topics']['edges'].length > 0
+        ? post['topics']['edges'][0]['node']['name']
+        : '';
+    return ListTile(
+      leading: AspectRatio(
+        aspectRatio: 1,
+        child: Image(image: NetworkImage("${post['thumbnail']['url']}")),
+      ),
+      title: Text(
+        '${post['name']}',
+        style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+      ),
+      subtitle: Column(
+        children: [
+          Container(
+            alignment: Alignment.topLeft,
+            child: Text(
+              '${post['tagline']}',
+              style: TextStyle(
+                color: Colors.black54,
+              ),
             ),
-            builder: (QueryResult result,
-                {VoidCallback refetch, FetchMore fetchMore}) {
-              if (result.hasException) {
-                return Text(result.exception.toString());
-              }
-
-              if (result.loading) {
-                return Center(child: CircularProgressIndicator());
-              }
-
-              List posts = result.data['posts']['edges'];
-
-              return ListView.separated(
-                padding: const EdgeInsets.all(8),
-                itemCount: posts.length,
-                itemBuilder: (context, index) {
-                  final post = posts[index];
-                  return _buildListTile(post['node'], context);
-                },
-                separatorBuilder: (context, index) => Divider(),
-              );
-            }),
-        drawer: CatchUpDrawer(),
+          ),
+          Padding(padding: EdgeInsets.only(bottom: 12.0)),
+          Row(children: <Widget>[
+            Column(
+              children: <Widget>[
+                Row(
+                  children: [
+                    Icon(
+                      Icons.chat_bubble_outline,
+                      color: Colors.black54,
+                      size: 16,
+                    ),
+                    Padding(padding: EdgeInsets.symmetric(horizontal: 2)),
+                    Text("${post['commentsCount']}",
+                        style: TextStyle(color: Colors.black54)),
+                  ],
+                )
+              ],
+            ),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 8),
+            ),
+            Text("$topic", style: TextStyle(color: Colors.black54))
+          ]),
+        ],
+      ),
+      trailing: Column(
+        children: [
+          Icon(Icons.arrow_drop_up),
+          Padding(padding: EdgeInsets.symmetric(vertical: 2)),
+          Text("${post['votesCount']}")
+        ],
       ),
     );
   }
-}
-
-Widget _buildListTile(
-    LinkedHashMap<String, dynamic> post, BuildContext context) {
-  return ListTile(
-    title: Text('${post['name']}'),
-    subtitle: Text('${post['description']}'),
-    trailing: IconButton(
-      icon: Icon(Icons.launch),
-      onPressed: () async {
-        if (await canLaunch("${post['website']}")) {
-          await launch("${post['website']}");
-        }
-      },
-    ),
-  );
 }
