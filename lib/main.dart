@@ -2,6 +2,7 @@ import 'package:catch_up/pages/GitHub/GitHub.dart';
 import 'package:catch_up/pages/GitHub/GitHubBloc.dart';
 import 'package:catch_up/pages/HackerNews/HackerNews.dart';
 import 'package:catch_up/pages/HackerNews/HackerNewsBloc.dart';
+import 'package:catch_up/pages/HackerNews/ItemPage/ItemPage.dart';
 import 'package:catch_up/pages/ProductHunt/ProductHunt.dart';
 import 'package:catch_up/pages/ProductHunt/ProductHuntBloc.dart';
 import 'package:catch_up/utils/themeData.dart';
@@ -35,13 +36,22 @@ class _CatchUpState extends State<CatchUp> {
           _page = 'Hacker News';
           return HackerNews(bloc: hackerNewsBloc);
         },
+        // '/hackernews/item': (context) {
+        //   return ItemPage();
+        // },
         '/github': (context) {
           _page = 'GitHub';
           return GitHub(bloc: githubBloc);
         },
+        '/github/repo': (context) {
+          return Container();
+        },
         '/producthunt': (context) {
           _page = 'Product Hunt';
           return ProductHunt(bloc: productHuntBloc);
+        },
+        'producthunt/product': (context) {
+          return Container();
         }
       },
     );

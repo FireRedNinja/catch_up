@@ -24,21 +24,21 @@ class CatchUpDrawer extends StatelessWidget {
             leading: Icon(FontAwesomeIcons.hackerNewsSquare),
             title: Text('Hacker News'),
             onTap: () {
-              Navigator.popAndPushNamed(context, '/hackernews');
+              Navigator.pushReplacementNamed(context, '/hackernews');
             },
           ),
           ListTile(
             leading: Icon(FontAwesomeIcons.github),
             title: Text('GitHub'),
             onTap: () {
-              Navigator.popAndPushNamed(context, '/github');
+              Navigator.pushReplacementNamed(context, '/github');
             },
           ),
           ListTile(
             leading: Icon(FontAwesomeIcons.productHunt),
             title: Text('Product Hunt'),
             onTap: () {
-              Navigator.popAndPushNamed(context, '/producthunt');
+              Navigator.pushReplacementNamed(context, '/producthunt');
             },
           )
         ],
